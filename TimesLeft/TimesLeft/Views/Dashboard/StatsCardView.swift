@@ -17,19 +17,15 @@ struct StatsCardView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(.system(.title, design: .rounded, weight: .bold))
 
                 Text(title)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        .cardStyle()
     }
 }
 
@@ -39,15 +35,15 @@ struct StatsCardView: View {
             title: "People",
             value: "5",
             icon: "person.3.fill",
-            color: .blue
+            color: .accentColor
         )
         StatsCardView(
             title: "Total Visits",
             value: "342",
             icon: "calendar",
-            color: .green
+            color: .accentColor
         )
     }
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(Color(UIColor.systemGroupedBackground))
 }

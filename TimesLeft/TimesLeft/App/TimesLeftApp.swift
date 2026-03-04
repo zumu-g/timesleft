@@ -7,6 +7,6 @@ struct TimesLeftApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: Person.self)
+        .modelContainer(for: [Person.self, UserProfile.self])
     }
 }

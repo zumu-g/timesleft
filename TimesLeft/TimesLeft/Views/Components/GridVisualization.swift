@@ -23,7 +23,7 @@ struct GridVisualization: View {
             ) {
                 ForEach(0..<total, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(index < completed ? Color.gray.opacity(0.3) : Color.accentColor)
+                        .fill(index < completed ? Color.gray.opacity(0.15) : Color.accentColor)
                         .frame(width: cellWidth, height: cellHeight)
                 }
             }

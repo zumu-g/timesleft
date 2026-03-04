@@ -4,6 +4,9 @@ import SwiftData
 struct AddPersonView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var profiles: [UserProfile]
+
+    private var yourAge: Int { profiles.first?.age ?? 30 }
 
     @State private var name = ""
     @State private var relationship: RelationshipType = .parent
@@ -110,7 +113,7 @@ struct AddPersonView: View {
             daysPerVisit: daysPerVisit,
             livesNearby: livesNearby
         )
-        let stats = TimeCalculator.calculate(for: tempPerson)
+        let stats = TimeCalculator.calculate(for: tempPerson, yourAge: yourAge)
 
         return VStack(spacing: 12) {
             HStack {

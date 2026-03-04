@@ -39,6 +39,7 @@ struct TimeStats {
 struct TimeCalculator {
 
     static func calculate(for person: Person, yourAge: Int = 30) -> TimeStats {
+        // TODO: Phase 2A - Remove default once all call sites pass actual user age
         let personAge = person.age
         let yearsRemaining = LifeExpectancyData.yearsRemaining(
             currentAge: personAge,
@@ -119,32 +120,63 @@ struct TimeCalculator {
         return (min(100, max(0, percentageUsed)), totalVisits, visitsCompleted)
     }
 
-    static func specialOccasionsRemaining(for person: Person) -> [String: Int] {
-        let yearsRemaining = LifeExpectancyData.yearsRemaining(
+    static func specialOccasionsRemaining(for person: Person, yourAge: Int = 30) -> [String: Int] {
+        let personYearsRemaining = LifeExpectancyData.yearsRemaining(
             currentAge: person.age,
             gender: person.gender
         )
+        let yourYearsRemaining = LifeExpectancyData.yearsRemaining(
+            currentAge: yourAge,
+            gender: .male
+        )
+        // Use the shorter of the two lifespans
+        let yearsOfOccasions = Int(min(personYearsRemaining, yourYearsRemaining))
+
+        // How many you'll actually share depends on visit frequency
+        let visitsPerYear = person.visitsPerYear * (person.livesNearby ? 10 : 1)
+        let sharedHolidays: Int
+        if visitsPerYear >= 4 {
+            sharedHolidays = yearsOfOccasions
+        } else if visitsPerYear >= 1 {
+            sharedHolidays = Int(Double(yearsOfOccasions) * min(visitsPerYear / 4.0, 1.0))
+        } else {
+            sharedHolidays = Int(Double(yearsOfOccasions) * visitsPerYear)
+        }
 
         return [
-            "Christmases": Int(yearsRemaining),
-            "Birthdays": Int(yearsRemaining),
-            "Thanksgivings": Int(yearsRemaining),
-            "Summers": Int(yearsRemaining),
-            "New Years": Int(yearsRemaining)
+            "Christmases": sharedHolidays,
+            "Birthdays": yearsOfOccasions,
+            "Summers": sharedHolidays,
+            "Phone calls": Int(Double(yearsOfOccasions) * min(visitsPerYear * 2, 52))
         ]
     }
 
     static func tailEndInsight(for person: Person, yourAge: Int) -> String? {
-        guard person.relationship == .parent || person.relationship == .grandparent else {
-            return nil
-        }
-
         let stats = calculate(for: person, yourAge: yourAge)
 
-        if stats.percentageUsed >= 90 {
-            return "You've already spent \(Int(stats.percentageUsed))% of your time with \(person.name). Most of your time together happened during childhood."
-        } else if stats.percentageUsed >= 75 {
-            return "About \(Int(stats.percentageUsed))% of your time with \(person.name) is already behind you."
+        switch person.relationship {
+        case .parent, .grandparent:
+            if stats.percentageUsed >= 90 {
+                return "You've already spent \(Int(stats.percentageUsed))% of your time with \(person.name). Most of your time together happened during childhood."
+            } else if stats.percentageUsed >= 75 {
+                return "About \(Int(stats.percentageUsed))% of your time with \(person.name) is already behind you. Each visit matters more than you think."
+            }
+        case .partner:
+            if stats.percentageUsed >= 50 {
+                return "You're past the halfway point with \(person.name). \(stats.remainingVisits) visits may sound like a lot — but count them."
+            }
+        case .friend:
+            if stats.percentageUsed >= 60 {
+                return "If you don't live nearby, most friendships run on a handful of visits. You have ~\(stats.remainingVisits) left with \(person.name)."
+            }
+        case .sibling:
+            if stats.percentageUsed >= 70 {
+                return "After childhood, sibling time drops dramatically. You have ~\(stats.remainingVisits) visits left with \(person.name)."
+            }
+        default:
+            if stats.percentageUsed >= 75 {
+                return "About \(Int(stats.percentageUsed))% of your time with \(person.name) is behind you."
+            }
         }
 
         return nil

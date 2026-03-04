@@ -4,7 +4,10 @@ import SwiftData
 struct PeopleListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Person.name) private var people: [Person]
+    @Query private var profiles: [UserProfile]
     @State private var showingAddPerson = false
+
+    private var yourAge: Int { profiles.first?.age ?? 30 }
 
     var body: some View {
         NavigationStack {
@@ -46,7 +49,7 @@ struct PeopleListView: View {
         List {
             ForEach(people) { person in
                 NavigationLink(destination: PersonDetailView(person: person)) {
-                    PersonRowView(person: person)
+                    PersonRowView(person: person, yourAge: yourAge)
                 }
             }
             .onDelete(perform: deletePeople)
@@ -62,9 +65,10 @@ struct PeopleListView: View {
 
 struct PersonRowView: View {
     let person: Person
+    var yourAge: Int = 30
 
     private var stats: TimeStats {
-        TimeCalculator.calculate(for: person)
+        TimeCalculator.calculate(for: person, yourAge: yourAge)
     }
 
     var body: some View {

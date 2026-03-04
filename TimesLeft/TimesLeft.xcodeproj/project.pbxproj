@@ -15,12 +15,17 @@
 		A06 /* PeopleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06; };
 		A07 /* AddPersonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07; };
 		A08 /* PersonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08; };
-		A09 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09; };
 		A10 /* GridVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10; };
 		A11 /* ProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11; };
 		A12 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12; };
 		A13 /* StatsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13; };
 		A14 /* LifeExpectancy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14; };
+		A15 /* CardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15; };
+		A16 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16; };
+		A17 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17; };
+		A18 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B18; };
+		A19 /* TimePortraitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19; };
+		A20 /* LifeCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,12 +38,17 @@
 		B06 /* PeopleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleListView.swift; sourceTree = "<group>"; };
 		B07 /* AddPersonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonView.swift; sourceTree = "<group>"; };
 		B08 /* PersonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonDetailView.swift; sourceTree = "<group>"; };
-		B09 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
 		B10 /* GridVisualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridVisualization.swift; sourceTree = "<group>"; };
 		B11 /* ProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRing.swift; sourceTree = "<group>"; };
 		B12 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		B13 /* StatsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCardView.swift; sourceTree = "<group>"; };
 		B14 /* LifeExpectancy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeExpectancy.swift; sourceTree = "<group>"; };
+		B15 /* CardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStyle.swift; sourceTree = "<group>"; };
+		B16 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		B17 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B18 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B19 /* TimePortraitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePortraitView.swift; sourceTree = "<group>"; };
+		B20 /* LifeCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCalendarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,24 +105,51 @@
 				B04 /* Person.swift */,
 				B05 /* TimeCalculator.swift */,
 				B14 /* LifeExpectancy.swift */,
+				B16 /* UserProfile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		E06 /* Views */ = {
+			E06 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				E08 /* People */,
 				E09 /* Dashboard */,
 				E10 /* Components */,
+				E11 /* Onboarding */,
+				E12 /* Settings */,
+				E13 /* LifeCalendar */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		E11 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B17 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E12 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B18 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		E13 /* LifeCalendar */ = {
+			isa = PBXGroup;
+			children = (
+				B20 /* LifeCalendarView.swift */,
+			);
+			path = LifeCalendar;
 			sourceTree = "<group>";
 		};
 		E07 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B09 /* PersistenceService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -141,6 +178,8 @@
 			children = (
 				B10 /* GridVisualization.swift */,
 				B11 /* ProgressRing.swift */,
+				B15 /* CardStyle.swift */,
+				B19 /* TimePortraitView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -221,12 +260,17 @@
 				A06 /* PeopleListView.swift in Sources */,
 				A07 /* AddPersonView.swift in Sources */,
 				A08 /* PersonDetailView.swift in Sources */,
-				A09 /* PersistenceService.swift in Sources */,
 				A10 /* GridVisualization.swift in Sources */,
 				A11 /* ProgressRing.swift in Sources */,
 				A12 /* DashboardView.swift in Sources */,
 				A13 /* StatsCardView.swift in Sources */,
 				A14 /* LifeExpectancy.swift in Sources */,
+				A15 /* CardStyle.swift in Sources */,
+				A16 /* UserProfile.swift in Sources */,
+				A17 /* OnboardingView.swift in Sources */,
+				A18 /* SettingsView.swift in Sources */,
+				A19 /* TimePortraitView.swift in Sources */,
+				A20 /* LifeCalendarView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

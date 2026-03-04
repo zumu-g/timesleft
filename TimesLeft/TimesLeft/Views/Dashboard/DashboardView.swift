@@ -3,17 +3,21 @@ import SwiftData
 
 struct DashboardView: View {
     @Query(sort: \Person.name) private var people: [Person]
+    @Query private var profiles: [UserProfile]
     @State private var showingAddPerson = false
 
-    private var totalRemainingVisits: Int {
-        people.reduce(0) { $0 + TimeCalculator.calculate(for: $1).remainingVisits }
+    private var yourAge: Int { profiles.first?.age ?? 30 }
+
+    private var peopleWithStats: [(Person, TimeStats)] {
+        people.map { ($0, TimeCalculator.calculate(for: $0, yourAge: yourAge)) }
     }
 
-    private var mostUrgent: Person? {
-        people.max { a, b in
-            TimeCalculator.calculate(for: a).percentageRemaining >
-            TimeCalculator.calculate(for: b).percentageRemaining
-        }
+    private var totalRemainingVisits: Int {
+        peopleWithStats.reduce(0) { $0 + $1.1.remainingVisits }
+    }
+
+    private var mostUrgent: (Person, TimeStats)? {
+        peopleWithStats.max { $0.1.percentageRemaining > $1.1.percentageRemaining }
     }
 
     var body: some View {
@@ -42,8 +46,7 @@ struct DashboardView: View {
                     .foregroundStyle(.accent)
 
                 Text("Make Time Count")
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(.system(.title, design: .rounded, weight: .bold))
 
                 Text("Inspired by Tim Urban's \"The Tail End\", this app helps you visualize and appreciate the limited time you have with the people you love.")
                     .font(.body)
@@ -63,10 +66,33 @@ struct DashboardView: View {
         .padding()
     }
 
+    private var moveCloserInsight: (Person, Int)? {
+        // Find the person who isn't nearby where moving closer would have the biggest impact
+        var bestPerson: Person?
+        var bestDelta = 0
+
+        for (person, stats) in peopleWithStats where !person.livesNearby {
+            let nearbyVisits = Int(LifeExpectancyData.yearsRemaining(
+                currentAge: person.age, gender: person.gender
+            ) * person.visitsPerYear * 10)
+            let delta = nearbyVisits - stats.remainingVisits
+            if delta > bestDelta {
+                bestDelta = delta
+                bestPerson = person
+            }
+        }
+
+        if let person = bestPerson, bestDelta > 0 {
+            return (person, bestDelta)
+        }
+        return nil
+    }
+
     private var dashboardContent: some View {
         VStack(spacing: 20) {
             summarySection
             urgentSection
+            moveCloserSection
             peopleOverviewSection
         }
         .padding()
@@ -79,13 +105,13 @@ struct DashboardView: View {
                     title: "People",
                     value: "\(people.count)",
                     icon: "person.3.fill",
-                    color: .blue
+                    color: .accentColor
                 )
                 StatsCardView(
                     title: "Total Visits",
                     value: "\(totalRemainingVisits)",
                     icon: "calendar.badge.clock",
-                    color: .green
+                    color: .accentColor.opacity(0.7)
                 )
             }
         }
@@ -93,19 +119,16 @@ struct DashboardView: View {
 
     @ViewBuilder
     private var urgentSection: some View {
-        if let urgent = mostUrgent {
-            let stats = TimeCalculator.calculate(for: urgent)
-
+        if let (urgent, stats) = mostUrgent {
             VStack(alignment: .leading, spacing: 12) {
                 Label("Prioritize", systemImage: "exclamationmark.triangle.fill")
                     .font(.headline)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.accent)
 
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(urgent.name)
-                            .font(.title3)
-                            .fontWeight(.semibold)
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
 
                         Text("\(Int(stats.percentageUsed))% of time spent")
                             .font(.subheadline)
@@ -123,10 +146,29 @@ struct DashboardView: View {
                 }
 
                 ProgressView(value: stats.percentageUsed / 100)
-                    .tint(.orange)
+                    .tint(.accent)
             }
             .padding()
-            .background(Color.orange.opacity(0.1))
+            .background(Color.accentColor.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    @ViewBuilder
+    private var moveCloserSection: some View {
+        if let (person, delta) = moveCloserInsight {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("What if?", systemImage: "mappin.and.ellipse")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(.accent)
+
+                Text("Moving closer to \(person.name) would give you **\(delta) more visits**.")
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(.primary)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.accentColor.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
@@ -143,19 +185,17 @@ struct DashboardView: View {
                 }
             }
 
-            ForEach(people) { person in
+            ForEach(peopleWithStats, id: \.0.id) { person, stats in
                 NavigationLink(destination: PersonDetailView(person: person)) {
-                    personCard(person)
+                    personCard(person, stats: stats)
                 }
                 .buttonStyle(.plain)
             }
         }
     }
 
-    private func personCard(_ person: Person) -> some View {
-        let stats = TimeCalculator.calculate(for: person)
-
-        return HStack(spacing: 12) {
+    private func personCard(_ person: Person, stats: TimeStats) -> some View {
+        HStack(spacing: 12) {
             Image(systemName: person.relationship.icon)
                 .font(.title2)
                 .foregroundStyle(.accent)
@@ -177,10 +217,7 @@ struct DashboardView: View {
 
             ProgressRing(progress: stats.percentageUsed / 100, size: 44, lineWidth: 4)
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+        .cardStyle(cornerRadius: 12)
     }
 }
 

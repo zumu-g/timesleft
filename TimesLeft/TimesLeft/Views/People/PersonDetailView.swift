@@ -4,13 +4,17 @@ import SwiftData
 struct PersonDetailView: View {
     @Bindable var person: Person
     @Environment(\.modelContext) private var modelContext
+    @Query private var profiles: [UserProfile]
+    @State private var showingSharePortrait = false
+
+    private var yourAge: Int { profiles.first?.age ?? 30 }
 
     private var stats: TimeStats {
-        TimeCalculator.calculate(for: person)
+        TimeCalculator.calculate(for: person, yourAge: yourAge)
     }
 
     private var specialOccasions: [String: Int] {
-        TimeCalculator.specialOccasionsRemaining(for: person)
+        TimeCalculator.specialOccasionsRemaining(for: person, yourAge: yourAge)
     }
 
     var body: some View {
@@ -18,16 +22,28 @@ struct PersonDetailView: View {
             VStack(spacing: 24) {
                 headerSection
                 mainStatsSection
-                gridSection
-                occasionsSection
-                if let insight = TimeCalculator.tailEndInsight(for: person, yourAge: 30) {
+                if let insight = TimeCalculator.tailEndInsight(for: person, yourAge: yourAge) {
                     insightSection(insight)
                 }
+                gridSection
+                occasionsSection
             }
             .padding()
         }
         .navigationTitle(person.name)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingSharePortrait = true
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showingSharePortrait) {
+            ShareableTimePortrait(person: person, stats: stats)
+        }
     }
 
     private var headerSection: some View {
@@ -45,10 +61,7 @@ struct PersonDetailView: View {
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        .cardStyle()
     }
 
     private var mainStatsSection: some View {
@@ -58,13 +71,13 @@ struct PersonDetailView: View {
                     title: "Visits Left",
                     value: "\(stats.remainingVisits)",
                     icon: "calendar",
-                    color: .blue
+                    color: .accentColor
                 )
                 StatsCardView(
                     title: "Days Together",
                     value: "\(stats.remainingDays)",
                     icon: "sun.max.fill",
-                    color: .orange
+                    color: .accentColor.opacity(0.7)
                 )
             }
 
@@ -74,7 +87,7 @@ struct PersonDetailView: View {
                         .font(.headline)
                     Spacer()
                     Text("\(Int(stats.percentageUsed))% spent")
-                        .font(.subheadline)
+                        .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
 
@@ -86,10 +99,7 @@ struct PersonDetailView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
-            .padding()
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+            .cardStyle()
         }
     }
 
@@ -108,7 +118,7 @@ struct PersonDetailView: View {
             HStack {
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(Color.gray.opacity(0.3))
+                        .fill(Color.gray.opacity(0.15))
                         .frame(width: 12, height: 12)
                     Text("Past")
                         .font(.caption)
@@ -125,10 +135,7 @@ struct PersonDetailView: View {
                 }
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        .cardStyle()
     }
 
     private var occasionsSection: some View {
@@ -143,26 +150,22 @@ struct PersonDetailView: View {
                             .font(.subheadline)
                         Spacer()
                         Text("~\(specialOccasions[occasion] ?? 0)")
-                            .font(.title3)
-                            .fontWeight(.semibold)
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
                     }
                     .padding()
-                    .background(Color(.secondarySystemBackground))
+                    .background(Color(UIColor.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        .cardStyle()
     }
 
     private func insightSection(_ insight: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("The Tail End", systemImage: "lightbulb.fill")
                 .font(.headline)
-                .foregroundStyle(.orange)
+                .foregroundStyle(.accent)
 
             Text(insight)
                 .font(.subheadline)
@@ -170,7 +173,7 @@ struct PersonDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.orange.opacity(0.1))
+        .background(Color.accentColor.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

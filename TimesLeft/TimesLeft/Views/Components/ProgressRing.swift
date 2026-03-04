@@ -10,15 +10,7 @@ struct ProgressRing: View {
     }
 
     private var progressColor: Color {
-        if normalizedProgress >= 0.9 {
-            return .red
-        } else if normalizedProgress >= 0.75 {
-            return .orange
-        } else if normalizedProgress >= 0.5 {
-            return .yellow
-        } else {
-            return .green
-        }
+        .accentColor
     }
 
     var body: some View {

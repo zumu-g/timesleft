@@ -3,7 +3,28 @@
 ## Overview
 Expand the app with features directly inspired by Tim Urban's "The Tail End" article: your own life calendar, life activities tracking, notifications, widgets, and an onboarding experience.
 
-## Current Status: NOT STARTED
+## Current Status: MOSTLY COMPLETE (2026-03-04)
+
+### Completed
+- [x] UserProfile model + Settings
+- [x] Onboarding flow (emotional 4-screen reveal)
+- [x] Life Calendar (Canvas-based, 4000 weeks)
+- [x] Shareable Time Portrait (ImageRenderer + share sheet)
+- [x] "Move Closer" dashboard insight
+- [x] Fix hardcoded yourAge=30
+- [x] Fix special occasions (differentiated numbers)
+- [x] Extend Tail End insight to all relationships
+- [x] Warm amber/coral visual identity
+- [x] CardStyle ViewModifier, performance fixes
+- [x] Delete dead PersistenceService code
+
+### Remaining
+- [ ] WidgetKit extension (needs Xcode target setup)
+
+### Cut from Scope
+- Activities Tracker (dilutes people focus)
+- Push Notifications (widget is better)
+- Visit Logging (deferred to Phase 3)
 
 ---
 

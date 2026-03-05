@@ -9,11 +9,14 @@ struct ContentView: View {
     }
 
     var body: some View {
-        if hasCompletedOnboarding {
-            mainTabView
-        } else {
-            OnboardingView()
+        Group {
+            if hasCompletedOnboarding {
+                mainTabView
+            } else {
+                OnboardingView()
+            }
         }
+        .animation(.easeInOut(duration: 0.5), value: hasCompletedOnboarding)
     }
 
     private var mainTabView: some View {

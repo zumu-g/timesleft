@@ -62,6 +62,7 @@ struct PersonDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .cardStyle()
+        .accessibilityElement(children: .combine)
     }
 
     private var mainStatsSection: some View {

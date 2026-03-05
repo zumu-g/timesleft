@@ -5,6 +5,8 @@ struct ProgressRing: View {
     var size: CGFloat = 100
     var lineWidth: CGFloat = 8
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private var normalizedProgress: Double {
         min(max(progress, 0), 1)
     }
@@ -25,7 +27,7 @@ struct ProgressRing: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.easeOut(duration: 0.5), value: normalizedProgress)
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.5), value: normalizedProgress)
 
             VStack(spacing: 0) {
                 Text("\(Int(normalizedProgress * 100))%")
@@ -39,6 +41,9 @@ struct ProgressRing: View {
             }
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Time spent")
+        .accessibilityValue("\(Int(normalizedProgress * 100)) percent")
     }
 }
 

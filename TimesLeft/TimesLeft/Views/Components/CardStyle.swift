@@ -6,9 +6,9 @@ struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding()
-            .background(Color(UIColor.systemBackground))
+            .background(Color(UIColor.secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
     }
 }
 

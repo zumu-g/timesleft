@@ -48,7 +48,7 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
 
-                        Link(destination: URL(string: "https://waitbutwhy.com/2015/12/the-tail-end.html")!) {
+                        Link(destination: URL(string: "https://waitbutwhy.com/2015/12/the-tail-end.html") ?? URL(string: "https://waitbutwhy.com")!) {
                             HStack {
                                 Text("The Tail End by Tim Urban")
                                 Spacer()

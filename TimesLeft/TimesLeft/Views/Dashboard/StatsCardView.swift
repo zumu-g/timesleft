@@ -26,6 +26,7 @@ struct StatsCardView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+        .accessibilityElement(children: .combine)
     }
 }
 

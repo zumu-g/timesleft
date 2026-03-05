@@ -11,9 +11,9 @@ struct TimePortraitView: View {
         if person.visitsPerYear >= 52 {
             return "Sundays"
         } else if person.visitsPerYear >= 12 {
-            return "visits"
+            return "meetups"
         } else if person.visitsPerYear >= 4 {
-            return "visits"
+            return "get-togethers"
         } else {
             return "visits"
         }
@@ -84,22 +84,14 @@ struct ShareableTimePortrait: View {
     @State private var showingShareSheet = false
     @Environment(\.dismiss) private var dismiss
 
+    @State private var shareImage: Image?
+    @State private var shareUIImage: UIImage?
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             TimePortraitView(person: person, stats: stats)
 
             HStack(spacing: 16) {
-                Button {
-                    shareImage()
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .padding(12)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
-                }
-
                 Button {
                     dismiss()
                 } label: {
@@ -110,31 +102,59 @@ struct ShareableTimePortrait: View {
                         .background(Color.white.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Close")
+
+                Button {
+                    renderShareImage()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.title2)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .padding(12)
+                        .background(Color.white.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel("Share image")
             }
             .padding()
         }
         .preferredColorScheme(.dark)
+        .sheet(item: Binding(
+            get: { shareUIImage.map { ShareableImage(image: $0) } },
+            set: { if $0 == nil { shareUIImage = nil } }
+        )) { item in
+            ShareSheetView(image: item.image)
+        }
     }
 
     @MainActor
-    private func shareImage() {
+    private func renderShareImage() {
         let renderer = ImageRenderer(content:
             TimePortraitView(person: person, stats: stats)
                 .frame(width: 390, height: 690)
         )
         renderer.scale = 3.0
+        shareUIImage = renderer.uiImage
+    }
+}
 
-        guard let image = renderer.uiImage else { return }
+// MARK: - Share helpers
 
+private struct ShareableImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+private struct ShareSheetView: UIViewControllerRepresentable {
+    let image: UIImage
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
         let activityVC = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
         )
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            rootVC.present(activityVC, animated: true)
-        }
+        return activityVC
     }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

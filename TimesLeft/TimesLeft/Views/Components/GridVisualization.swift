@@ -28,6 +28,9 @@ struct GridVisualization: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Visit grid")
+        .accessibilityValue("\(completed) of \(total) visits completed, \(total - completed) remaining")
     }
 }
 
@@ -36,13 +39,18 @@ struct AnimatedGridVisualization: View {
     let completed: Int
     let columns: Int
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animatedCompleted = 0
 
     var body: some View {
         GridVisualization(total: total, completed: animatedCompleted, columns: columns)
             .onAppear {
-                withAnimation(.easeOut(duration: 1.5)) {
+                if reduceMotion {
                     animatedCompleted = completed
+                } else {
+                    withAnimation(.easeOut(duration: 1.5)) {
+                        animatedCompleted = completed
+                    }
                 }
             }
     }

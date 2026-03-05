@@ -6,6 +6,8 @@ struct PeopleListView: View {
     @Query(sort: \Person.name) private var people: [Person]
     @Query private var profiles: [UserProfile]
     @State private var showingAddPerson = false
+    @State private var personToDelete: Person?
+    @State private var showDeleteConfirmation = false
 
     private var yourAge: Int { profiles.first?.age ?? 30 }
 
@@ -52,13 +54,23 @@ struct PeopleListView: View {
                     PersonRowView(person: person, yourAge: yourAge)
                 }
             }
-            .onDelete(perform: deletePeople)
+            .onDelete { offsets in
+                if let index = offsets.first {
+                    personToDelete = people[index]
+                    showDeleteConfirmation = true
+                }
+            }
         }
-    }
-
-    private func deletePeople(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(people[index])
+        .alert("Delete Person", isPresented: $showDeleteConfirmation, presenting: personToDelete) { person in
+            Button("Delete", role: .destructive) {
+                modelContext.delete(person)
+                personToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                personToDelete = nil
+            }
+        } message: { person in
+            Text("Are you sure you want to remove \(person.name)? This can't be undone.")
         }
     }
 }

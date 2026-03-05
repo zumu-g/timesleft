@@ -218,6 +218,8 @@ struct DashboardView: View {
             ProgressRing(progress: stats.percentageUsed / 100, size: 44, lineWidth: 4)
         }
         .cardStyle(cornerRadius: 12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(person.name), \(person.relationship.rawValue), \(stats.remainingVisits) visits left, \(Int(stats.percentageUsed))% spent")
     }
 }
 

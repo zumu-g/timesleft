@@ -53,6 +53,7 @@ struct LifeCalendarView: View {
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
+            .accessibilityElement(children: .combine)
 
             VStack(spacing: 4) {
                 Text("\(totalWeeks - weeksLived)")
@@ -62,6 +63,7 @@ struct LifeCalendarView: View {
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
+            .accessibilityElement(children: .combine)
         }
         .padding(.vertical, 8)
     }
@@ -101,31 +103,36 @@ struct WeeksCanvasGrid: View {
     }
 
     var body: some View {
-        Canvas { context, size in
+        GeometryReader { geometry in
+            let availableWidth = geometry.size.width
             let spacing: CGFloat = 1
-            let cellSize = (size.width - CGFloat(weeksPerRow - 1) * spacing) / CGFloat(weeksPerRow)
+            let cellSize = (availableWidth - CGFloat(weeksPerRow - 1) * spacing) / CGFloat(weeksPerRow)
             let effectiveCell = max(cellSize, 1)
+            let totalHeight = CGFloat(totalRows) * (effectiveCell + spacing)
 
-            let livedColor = Color.gray.opacity(0.15)
-            let remainingColor = Color.accentColor
+            Canvas { context, size in
+                let livedColor = Color.gray.opacity(0.15)
+                let remainingColor = Color.accentColor
 
-            for week in 0..<totalWeeks {
-                let col = week % weeksPerRow
-                let row = week / weeksPerRow
-                let rect = CGRect(
-                    x: CGFloat(col) * (effectiveCell + spacing),
-                    y: CGFloat(row) * (effectiveCell + spacing),
-                    width: effectiveCell,
-                    height: effectiveCell
-                )
-                let color = week < weeksLived ? livedColor : remainingColor
-                context.fill(
-                    RoundedRectangle(cornerRadius: 0.5).path(in: rect),
-                    with: .color(color)
-                )
+                for week in 0..<totalWeeks {
+                    let col = week % weeksPerRow
+                    let row = week / weeksPerRow
+                    let rect = CGRect(
+                        x: CGFloat(col) * (effectiveCell + spacing),
+                        y: CGFloat(row) * (effectiveCell + spacing),
+                        width: effectiveCell,
+                        height: effectiveCell
+                    )
+                    let color = week < weeksLived ? livedColor : remainingColor
+                    context.fill(Path(rect), with: .color(color))
+                }
             }
+            .frame(height: totalHeight)
         }
-        .frame(height: CGFloat(totalRows) * ((UIScreen.main.bounds.width - 32) / CGFloat(weeksPerRow) + 1))
+        .frame(height: CGFloat(totalRows) * 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Life calendar")
+        .accessibilityValue("\(weeksLived) weeks lived, \(totalWeeks - weeksLived) weeks remaining")
     }
 }
 

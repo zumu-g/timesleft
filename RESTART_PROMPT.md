@@ -8,29 +8,35 @@ Copy and paste this to continue where we left off:
 
 We're continuing work on the TimesLeft iOS app. Here's where we are:
 
-**Last session (2026-03-04):** We completed a major Phase 2 overhaul. The app builds and runs on simulator. Key changes:
-- Emotional 4-screen onboarding flow (ask parent → frequency → animated gut-punch reveal → profile setup)
-- UserProfile model replacing hardcoded yourAge=30
-- Warm amber/coral visual identity (no more traffic-light progress rings)
-- Shareable Time Portrait (dark Instagram-style visualization with share sheet)
-- Canvas-based Life Calendar (4,000 weeks grid)
-- "Move Closer" dashboard insight
-- Tail End insights extended to all relationship types
-- Fixed special occasions (no longer all identical numbers)
+**Last session (2026-03-05):** We implemented the full brand identity/visual overhaul. The app builds and runs on simulator with all theme changes applied. Changes are UNCOMMITTED.
 
-**What still needs doing:**
-1. **WidgetKit extension** - Needs Xcode target setup (App Group + Widget Extension). Small widget showing one rotating daily stat like "47 Christmases left with Mom"
-2. **User testing feedback** - I tested the app on simulator, fix any issues I report
-3. **App Store prep** - Screenshots, app description, metadata
-4. **Unit tests** - TimeCalculator tests (pure functions, easy to test)
-5. **README/docs update** - Reflect Phase 2 completion
+**What was done this session:**
+- Design review (accessibility, HIG compliance, design critique) — all fixes applied
+- Daily reminder notifications feature (NotificationManager, rotating facts)
+- Full brand identity implementation:
+  - Caveat hand-drawn font (display text, hero numbers, emotional messages)
+  - Complete color palette (warm amber, rose, ochre, sage green, 7 relationship colors)
+  - Hand-drawn shape system (wobbly rects, circles, underlines, grain overlay)
+  - HandDrawnProgressRing component
+  - Paper background (warm parchment) for main screens
+  - Dark warm background with grain for onboarding/portraits
+  - All views updated to use theme tokens
+
+**Immediate TODO:**
+1. **Commit & push** the brand identity changes (all uncommitted)
+2. **Phase 3 polish** — hand-drawn grid cells (individual wobbly rects instead of standard RoundedRectangles), cross-off marks for past visits, any visual refinements after testing
+3. **WidgetKit extension** — needs Xcode target setup (App Group + Widget Extension)
+4. **App Store prep** — screenshots, description, metadata
+5. **Unit tests** — TimeCalculator (pure functions, easy to test)
 
 **Design principles to maintain:**
 - Soul = simplicity + emotional gut-punch + finite time with PEOPLE (not activities)
+- Hand-drawn illustrated feel (like gatheredhere.com.au) — warm, intimate, human
 - No gamification, no social feeds, no activity tracking
 - Every feature should either create an emotional moment or enable sharing
 
 **Git:** https://github.com/zumu-g/timesleft.git (branch: main)
+**Simulator:** iPhone 17 Pro, ID: 37557BC1-D0C4-47C5-B40D-84CAB021CB2E
 
 Please review the current codebase state and ask me what I'd like to work on next.
 

@@ -2,12 +2,13 @@ import SwiftUI
 
 // MARK: - Progress Ring — "The Void"
 //
-// Thin. Clean. The number matters, not the ring.
+// A clean circle. Thin stroke. The number inside is what matters.
 
-struct ProgressRing: View {
+struct HandDrawnProgressRing: View {
     let progress: Double
     var size: CGFloat = 100
     var lineWidth: CGFloat = 2
+    var seed: Int = 0
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -17,18 +18,18 @@ struct ProgressRing: View {
 
     var body: some View {
         ZStack {
+            // Track — barely visible
             Circle()
                 .stroke(Color.tlDivider, lineWidth: lineWidth)
 
+            // Progress arc
             Circle()
                 .trim(from: 0, to: normalizedProgress)
-                .stroke(
-                    Color.tlBone,
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
+                .stroke(Color.tlBone, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.6), value: normalizedProgress)
 
+            // Center number
             VStack(spacing: 0) {
                 Text("\(Int(normalizedProgress * 100))")
                     .font(.tlRingPercentage(ringSize: size))
@@ -39,7 +40,7 @@ struct ProgressRing: View {
                         .font(.tlRingLabel(ringSize: size))
                         .foregroundStyle(Color.tlTextSecondary)
                         .textCase(.uppercase)
-                        .tracking(0.5)
+                        .tracking(1)
                 }
             }
         }
@@ -48,35 +49,4 @@ struct ProgressRing: View {
         .accessibilityLabel("Time spent")
         .accessibilityValue("\(Int(normalizedProgress * 100)) percent")
     }
-}
-
-struct ProgressRingWithLabel: View {
-    let progress: Double
-    let label: String
-    var size: CGFloat = 100
-
-    var body: some View {
-        VStack(spacing: 8) {
-            ProgressRing(progress: progress, size: size)
-
-            Text(label)
-                .font(.tlCaption)
-                .foregroundStyle(Color.tlTextSecondary)
-        }
-    }
-}
-
-#Preview {
-    VStack(spacing: 32) {
-        HStack(spacing: 24) {
-            ProgressRing(progress: 0.25)
-            ProgressRing(progress: 0.50)
-            ProgressRing(progress: 0.75)
-            ProgressRing(progress: 0.93)
-        }
-
-        ProgressRing(progress: 0.87, size: 150, lineWidth: 2)
-    }
-    .padding()
-    .background(Color.tlBackground)
 }

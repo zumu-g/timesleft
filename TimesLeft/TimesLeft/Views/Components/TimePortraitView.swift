@@ -1,6 +1,11 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Time Portrait — "The Void"
+//
+// A stark, shareable image. Number on black. Nothing else.
+// This is what gets screenshotted and shared.
+
 struct TimePortraitView: View {
     let person: Person
     let stats: TimeStats
@@ -25,56 +30,59 @@ struct TimePortraitView: View {
 
     @ViewBuilder
     var shareableContent: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ZStack {
+            Color.tlVoid.ignoresSafeArea()
 
-            // Person name
-            Text(person.name)
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(0.6))
-                .tracking(2)
-                .textCase(.uppercase)
+            VStack(spacing: 0) {
+                Spacer()
 
-            // The grid
-            let total = stats.totalExpectedVisits
-            let completed = stats.visitsCompleted
-            let cellCount = min(total, 400)
-            let pastCount = min(completed, cellCount)
+                // Name — small, tracked, above the number
+                Text(person.name.uppercased())
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(3)
+                    .padding(.bottom, 24)
 
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: 3), count: columns),
-                spacing: 3
-            ) {
-                ForEach(0..<cellCount, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1.5)
-                        .fill(index < pastCount ? Color.white.opacity(0.08) : Color.accentColor)
-                        .aspectRatio(1, contentMode: .fit)
+                // The grid — the visual anchor
+                let total = stats.totalExpectedVisits
+                let completed = stats.visitsCompleted
+                let cellCount = min(total, 400)
+                let pastCount = min(completed, cellCount)
+
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: columns),
+                    spacing: 2
+                ) {
+                    ForEach(0..<cellCount, id: \.self) { index in
+                        Rectangle()
+                            .fill(index < pastCount ? Color.tlPast : Color.tlCopper)
+                            .aspectRatio(1, contentMode: .fit)
+                    }
                 }
-            }
-            .padding(.horizontal, 8)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 32)
 
-            // The stat line
-            VStack(spacing: 8) {
+                // The number
                 Text("\(stats.remainingVisits)")
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.accentColor)
+                    .font(.tlDisplayNumber)
+                    .foregroundStyle(Color.tlCopper)
+                    .padding(.bottom, 4)
 
-                Text("\(visitLabel) left with \(person.name).")
-                    .font(.system(size: 18, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.7))
+                Text("\(visitLabel) left.")
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.tlTextSecondary)
+
+                Spacer()
+
+                // Watermark
+                Text("TIMESLEFT")
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundStyle(Color.tlTextTertiary.opacity(0.5))
+                    .tracking(3)
+                    .padding(.bottom, 24)
             }
-
-            Spacer()
-
-            // Watermark
-            Text("timesleft.app")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(0.25))
-                .tracking(1)
-                .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
     }
 }
 
@@ -96,11 +104,9 @@ struct ShareableTimePortrait: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .padding(12)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundStyle(Color.tlTextSecondary)
+                        .padding(14)
                 }
                 .accessibilityLabel("Close")
 
@@ -108,15 +114,14 @@ struct ShareableTimePortrait: View {
                     renderShareImage()
                 } label: {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .padding(12)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundStyle(Color.tlTextSecondary)
+                        .padding(14)
                 }
                 .accessibilityLabel("Share image")
             }
-            .padding()
+            .padding(.top, 4)
+            .padding(.trailing, 4)
         }
         .preferredColorScheme(.dark)
         .sheet(item: Binding(

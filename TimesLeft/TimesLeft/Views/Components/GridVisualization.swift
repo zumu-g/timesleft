@@ -1,5 +1,10 @@
 import SwiftUI
 
+// MARK: - Grid Visualization — "The Void"
+//
+// Squares on black. Past = barely visible. Future = bone white.
+// The visual of what's gone vs what's left.
+
 struct GridVisualization: View {
     let total: Int
     let completed: Int
@@ -22,8 +27,8 @@ struct GridVisualization: View {
                 spacing: spacing
             ) {
                 ForEach(0..<total, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(index < completed ? Color.gray.opacity(0.15) : Color.accentColor)
+                    Rectangle()
+                        .fill(index < completed ? Color.tlPast : Color.tlBone)
                         .frame(width: cellWidth, height: cellHeight)
                 }
             }
@@ -58,17 +63,12 @@ struct AnimatedGridVisualization: View {
 
 #Preview {
     VStack(spacing: 20) {
-        Text("90 total, 81 completed (90%)")
-            .font(.headline)
-
         GridVisualization(total: 90, completed: 81, columns: 10)
             .frame(height: 200)
-
-        Text("150 total, 50 completed (33%)")
-            .font(.headline)
 
         GridVisualization(total: 150, completed: 50, columns: 15)
             .frame(height: 200)
     }
     .padding()
+    .background(Color.tlBackground)
 }

@@ -13,7 +13,7 @@ struct LifeCalendarView: View {
     }
 
     private var totalWeeks: Int {
-        guard let profile else { return 4004 } // 77 years * 52 weeks
+        guard let profile else { return 4004 }
         let lifeExpectancy = LifeExpectancyData.lifeExpectancy(
             currentAge: profile.age,
             gender: profile.gender
@@ -24,74 +24,91 @@ struct LifeCalendarView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 0) {
+                    // Header stats
                     headerStats
+                        .padding(.top, 20)
+                        .padding(.bottom, 24)
 
+                    Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+                        .padding(.horizontal, 20)
+
+                    // The grid — the whole point
                     WeeksCanvasGrid(
                         totalWeeks: totalWeeks,
                         weeksLived: weeksLived,
                         weeksPerRow: 52
                     )
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 24)
 
+                    // Legend
                     legend
+                        .padding(.bottom, 32)
                 }
-                .padding()
             }
+            .background(Color.tlBackground.ignoresSafeArea())
             .navigationTitle("Your Life")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 
     private var headerStats: some View {
-        HStack(spacing: 24) {
+        HStack {
             VStack(spacing: 4) {
                 Text("\(weeksLived)")
-                    .font(.system(.title, design: .rounded, weight: .bold))
-                    .foregroundStyle(.secondary)
-                Text("weeks lived")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlTextTertiary)
+                Text("WEEKS LIVED")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
             }
+            .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
+
+            Rectangle()
+                .fill(Color.tlDivider)
+                .frame(width: 0.5, height: 40)
 
             VStack(spacing: 4) {
                 Text("\(totalWeeks - weeksLived)")
-                    .font(.system(.title, design: .rounded, weight: .bold))
-                    .foregroundStyle(.accent)
-                Text("weeks left")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlCopper)
+                Text("WEEKS LEFT")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
             }
+            .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
         }
-        .padding(.vertical, 8)
+        .padding(.horizontal, 20)
     }
 
     private var legend: some View {
         HStack(spacing: 24) {
             HStack(spacing: 6) {
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(Color.gray.opacity(0.15))
-                    .frame(width: 12, height: 12)
+                Rectangle()
+                    .fill(Color.tlPast)
+                    .frame(width: 10, height: 10)
                 Text("Lived")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.tlCaption)
+                    .foregroundStyle(Color.tlTextTertiary)
             }
             HStack(spacing: 6) {
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(Color.accentColor)
-                    .frame(width: 12, height: 12)
+                Rectangle()
+                    .fill(Color.tlBone)
+                    .frame(width: 10, height: 10)
                 Text("Remaining")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.tlCaption)
+                    .foregroundStyle(Color.tlTextTertiary)
             }
         }
-        .padding(.top, 8)
     }
 }
 
-// MARK: - Canvas-based grid for performance (4,000+ cells)
+// MARK: - Canvas Grid
 
 struct WeeksCanvasGrid: View {
     let totalWeeks: Int
@@ -111,8 +128,8 @@ struct WeeksCanvasGrid: View {
             let totalHeight = CGFloat(totalRows) * (effectiveCell + spacing)
 
             Canvas { context, size in
-                let livedColor = Color.gray.opacity(0.15)
-                let remainingColor = Color.accentColor
+                let livedColor = Color.tlPast
+                let remainingColor = Color.tlBone
 
                 for week in 0..<totalWeeks {
                     let col = week % weeksPerRow

@@ -1,5 +1,9 @@
 import SwiftUI
 
+// MARK: - Stats Card — "The Void"
+//
+// Minimal. Number + label. No icon, no color, no card.
+
 struct StatsCardView: View {
     let title: String
     let value: String
@@ -7,25 +11,17 @@ struct StatsCardView: View {
     let color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(color)
-                Spacer()
-            }
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.tlStatLarge)
+                .foregroundStyle(Color.tlBone)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(value)
-                    .font(.system(.title, design: .rounded, weight: .bold))
-
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            Text(title.uppercased())
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(1.5)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardStyle()
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 }
@@ -46,5 +42,5 @@ struct StatsCardView: View {
         )
     }
     .padding()
-    .background(Color(UIColor.systemGroupedBackground))
+    .background(Color.tlBackground)
 }

@@ -14,9 +14,8 @@ struct OnboardingView: View {
 
     // Reveal animation states
     @State private var showNumber = false
-    @State private var showGrid = false
-    @State private var showMessage = false
-    @State private var animatedFill = 0
+    @State private var showContext = false
+    @State private var showCTA = false
 
     enum OnboardingPhase {
         case askAge
@@ -70,297 +69,280 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.tlVoid.ignoresSafeArea()
 
             switch phase {
             case .askAge:
-                askAgeView
-                    .transition(.opacity)
+                askAgeView.transition(.opacity)
             case .askFrequency:
-                askFrequencyView
-                    .transition(.opacity)
+                askFrequencyView.transition(.opacity)
             case .reveal:
-                revealView
-                    .transition(.opacity)
+                revealView.transition(.opacity)
             case .setupProfile:
-                setupProfileView
-                    .transition(.opacity)
+                setupProfileView.transition(.opacity)
             }
         }
         .preferredColorScheme(.dark)
     }
 
-    // MARK: - Screen 1: Ask about their person
+    // MARK: - Screen 1: Ask
 
     private var askAgeView: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 0) {
             Spacer()
 
             Text("Think of someone\nyou love.")
-                .font(.system(.title, design: .rounded, weight: .bold))
+                .font(.tlDisplayText)
+                .foregroundStyle(Color.tlBone)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.white)
+                .padding(.bottom, 48)
 
             VStack(spacing: 16) {
                 TextField("Their name", text: $parentName)
-                    .font(.system(.title2, design: .rounded))
+                    .font(.system(size: 20, weight: .regular))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-                    .padding()
-                    .background(Color.white.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(Color.tlBone)
+                    .padding(.vertical, 16)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 0.5)
+                            .foregroundStyle(Color.tlDivider),
+                        alignment: .bottom
+                    )
 
                 TextField("Their age", text: $parentAge)
-                    .font(.system(.title2, design: .rounded))
+                    .font(.system(size: 20, weight: .regular))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.tlBone)
                     .keyboardType(.numberPad)
-                    .padding()
-                    .background(Color.white.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 16)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 0.5)
+                            .foregroundStyle(Color.tlDivider),
+                        alignment: .bottom
+                    )
                     .onChange(of: parentAge) { _, newValue in
-                        // Only allow digits, max 3 chars
                         let filtered = newValue.filter { $0.isNumber }
                         if filtered != newValue || filtered.count > 3 {
                             parentAge = String(filtered.prefix(3))
                         }
                     }
 
-                // Gender picker for life expectancy accuracy
-                HStack(spacing: 12) {
+                // Gender — minimal pill selectors
+                HStack(spacing: 1) {
                     ForEach(Gender.allCases) { g in
                         Button {
                             parentGender = g
                         } label: {
                             Text(g.rawValue)
-                                .font(.system(.body, design: .rounded, weight: .medium))
+                                .font(.system(size: 15, weight: .medium))
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(parentGender == g ? Color.accentColor : Color.white.opacity(0.15))
-                                .foregroundStyle(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .padding(.vertical, 14)
+                                .background(parentGender == g ? Color.tlCopper : Color.clear)
+                                .foregroundStyle(parentGender == g ? Color.tlBone : Color.tlTextSecondary)
                         }
                         .accessibilityAddTraits(parentGender == g ? .isSelected : [])
                     }
                 }
+                .background(Color.tlSurface)
+                .padding(.top, 8)
             }
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
+            .frame(maxWidth: 340)
 
             Spacer()
 
             Button {
-                withAnimation(.easeInOut(duration: 0.5)) {
+                withAnimation(.easeInOut(duration: 0.4)) {
                     phase = .askFrequency
                 }
             } label: {
                 Text("Next")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.system(size: 17, weight: .medium))
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .padding(.vertical, 18)
+                    .background(parentName.isEmpty || !isAgeValid ? Color.tlSurface : Color.tlCopper)
+                    .foregroundStyle(parentName.isEmpty || !isAgeValid ? Color.tlTextSecondary : Color.tlBone)
             }
             .disabled(parentName.isEmpty || !isAgeValid)
-            .opacity(parentName.isEmpty || !isAgeValid ? 0.5 : 1)
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
-            .padding(.bottom, 40)
+            .frame(maxWidth: 340)
+            .padding(.bottom, 60)
         }
     }
 
-    // MARK: - Screen 2: Ask frequency
+    // MARK: - Screen 2: Frequency
 
     private var askFrequencyView: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 0) {
             Spacer()
 
             Text("How often do you\nsee \(parentName)?")
-                .font(.system(.title, design: .rounded, weight: .bold))
+                .font(.tlDisplayText)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.tlBone)
+                .padding(.bottom, 48)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 1) {
                 ForEach(VisitFrequency.allCases, id: \.self) { freq in
                     Button {
                         frequency = freq
                     } label: {
-                        Text(freq.rawValue)
-                            .font(.system(.body, design: .rounded, weight: .medium))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(frequency == freq ? Color.accentColor : Color.white.opacity(0.15))
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        HStack {
+                            Text(freq.rawValue)
+                                .font(.system(size: 17, weight: .regular))
+                            Spacer()
+                            if frequency == freq {
+                                Circle()
+                                    .fill(Color.tlCopper)
+                                    .frame(width: 8, height: 8)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(frequency == freq ? Color.tlSurface : Color.clear)
+                        .foregroundStyle(Color.tlBone)
                     }
                     .accessibilityAddTraits(frequency == freq ? .isSelected : [])
                 }
             }
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
+            .frame(maxWidth: 340)
 
             Spacer()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 1) {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.4)) {
                         phase = .askAge
                     }
                 } label: {
                     Text("Back")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(size: 17, weight: .regular))
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.white.opacity(0.15))
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.vertical, 18)
+                        .foregroundStyle(Color.tlTextSecondary)
                 }
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.4)) {
                         phase = .reveal
                     }
-                    if reduceMotion {
-                        showNumber = true
-                        showGrid = true
-                        showMessage = true
-                    } else {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                            withAnimation(.easeOut(duration: 0.8)) {
-                                showNumber = true
-                            }
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            withAnimation(.easeOut(duration: 1.0)) {
-                                showGrid = true
-                            }
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.8) {
-                            withAnimation(.easeOut(duration: 0.8)) {
-                                showMessage = true
-                            }
-                        }
-                    }
+                    triggerReveal()
                 } label: {
                     Text("Show me")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(size: 17, weight: .medium))
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.vertical, 18)
+                        .background(Color.tlCopper)
+                        .foregroundStyle(Color.tlBone)
                 }
             }
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
-            .padding(.bottom, 40)
+            .frame(maxWidth: 340)
+            .padding(.bottom, 60)
         }
     }
 
-    // MARK: - Screen 3: The Reveal
+    // MARK: - Screen 3: The Reveal — the void speaks
 
     private var revealView: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             Spacer()
 
             if showNumber {
                 Text("\(remainingVisits)")
-                    .font(.system(size: 96, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.accentColor)
+                    .font(.tlHeroNumber)
+                    .foregroundStyle(Color.tlCopper)
                     .minimumScaleFactor(0.5)
                     .accessibilityLabel("\(remainingVisits) visits remaining")
-
-                Text("visits left with \(parentName).")
-                    .font(.system(.title3, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                    .transition(.opacity)
             }
 
-            if showGrid {
-                revealGrid
-                    .padding(.horizontal, 20)
-            }
+            if showContext {
+                VStack(spacing: 8) {
+                    Text("visits left with \(parentName).")
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundStyle(Color.tlTextSecondary)
 
-            if showMessage {
-                Text("This is what's left.\nMake it count.")
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.6))
-                    .multilineTextAlignment(.center)
+                    Rectangle()
+                        .fill(Color.tlDivider)
+                        .frame(width: 40, height: 0.5)
+                        .padding(.vertical, 16)
+
+                    Text("This is what's left.")
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(Color.tlTextTertiary)
+                }
+                .transition(.opacity)
+                .padding(.top, 16)
             }
 
             Spacer()
 
-            if showMessage {
+            if showCTA {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.4)) {
                         phase = .setupProfile
                     }
                 } label: {
-                    Text("Set up my profile")
-                        .font(.system(.headline, design: .rounded))
+                    Text("Continue")
+                        .font(.system(size: 17, weight: .medium))
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.vertical, 18)
+                        .background(Color.tlCopper)
+                        .foregroundStyle(Color.tlBone)
                 }
-                .frame(maxWidth: 500)
-                .padding(.horizontal)
-                .padding(.bottom, 40)
+                .frame(maxWidth: 340)
+                .padding(.bottom, 60)
                 .transition(.opacity)
             }
         }
     }
 
-    private var revealGrid: some View {
-        let totalVisits = remainingVisits + estimatedPastVisits
-        let cellCount = min(totalVisits, 400)
-        // Proportionally scale past/future within 400-cell cap
-        let pastRatio = totalVisits > 0 ? Double(estimatedPastVisits) / Double(totalVisits) : 0
-        let pastCount = min(Int(Double(cellCount) * pastRatio), cellCount)
-
-        return LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 3), count: 20),
-            spacing: 3
-        ) {
-            ForEach(0..<cellCount, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(index < pastCount ? Color.gray.opacity(0.15) : Color.accentColor)
-                    .aspectRatio(1, contentMode: .fit)
+    private func triggerReveal() {
+        if reduceMotion {
+            showNumber = true
+            showContext = true
+            showCTA = true
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    showNumber = true
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeOut(duration: 0.8)) {
+                    showContext = true
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    showCTA = true
+                }
             }
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Visit grid showing \(estimatedPastVisits) past and \(remainingVisits) future visits")
-    }
-
-    private var estimatedPastVisits: Int {
-        let userAge = Calendar.current.dateComponents([.year], from: userBirthDate, to: Date()).year ?? 30
-        let childhoodYears = min(18, userAge)
-        let adultYears = max(0, userAge - 18)
-        return childhoodYears * 365 / 7 + Int(Double(adultYears) * frequency.visitsPerYear)
     }
 
     // MARK: - Screen 4: Profile Setup
 
     private var setupProfileView: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 0) {
             Spacer()
 
             Text("About you")
-                .font(.system(.title, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+                .font(.tlDisplayText)
+                .foregroundStyle(Color.tlBone)
+                .padding(.bottom, 8)
 
             Text("For accurate calculations")
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.white.opacity(0.6))
+                .font(.tlSubheadline)
+                .foregroundStyle(Color.tlTextSecondary)
+                .padding(.bottom, 48)
 
-            VStack(spacing: 20) {
+            VStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Your birth date")
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.7))
+                    Text("BIRTH DATE")
+                        .font(.tlLabel)
+                        .foregroundStyle(Color.tlTextTertiary)
+                        .tracking(1.5)
 
                     DatePicker("", selection: $userBirthDate, in: ...Date(), displayedComponents: .date)
                         .datePickerStyle(.compact)
@@ -368,63 +350,64 @@ struct OnboardingView: View {
                         .colorScheme(.dark)
                 }
 
-                HStack(spacing: 16) {
-                    ForEach(Gender.allCases) { g in
-                        Button {
-                            userGender = g
-                        } label: {
-                            Text(g.rawValue)
-                                .font(.system(.body, design: .rounded, weight: .medium))
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(userGender == g ? Color.accentColor : Color.white.opacity(0.15))
-                                .foregroundStyle(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("GENDER")
+                        .font(.tlLabel)
+                        .foregroundStyle(Color.tlTextTertiary)
+                        .tracking(1.5)
+
+                    HStack(spacing: 1) {
+                        ForEach(Gender.allCases) { g in
+                            Button {
+                                userGender = g
+                            } label: {
+                                Text(g.rawValue)
+                                    .font(.system(size: 15, weight: .medium))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .background(userGender == g ? Color.tlCopper : Color.clear)
+                                    .foregroundStyle(userGender == g ? Color.tlBone : Color.tlTextSecondary)
+                            }
+                            .accessibilityAddTraits(userGender == g ? .isSelected : [])
                         }
-                        .accessibilityAddTraits(userGender == g ? .isSelected : [])
                     }
+                    .background(Color.tlSurface)
                 }
             }
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
+            .frame(maxWidth: 340)
 
             Spacer()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 1) {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.4)) {
                         phase = .reveal
                     }
                 } label: {
                     Text("Back")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(size: 17, weight: .regular))
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.white.opacity(0.15))
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.vertical, 18)
+                        .foregroundStyle(Color.tlTextSecondary)
                 }
 
                 Button {
                     completeOnboarding()
                 } label: {
-                    Text("Get Started")
-                        .font(.system(.headline, design: .rounded, weight: .bold))
+                    Text("Begin")
+                        .font(.system(size: 17, weight: .medium))
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.vertical, 18)
+                        .background(Color.tlCopper)
+                        .foregroundStyle(Color.tlBone)
                 }
             }
-            .frame(maxWidth: 500)
-            .padding(.horizontal)
-            .padding(.bottom, 40)
+            .frame(maxWidth: 340)
+            .padding(.bottom, 60)
         }
     }
 
     private func completeOnboarding() {
-        // Create user profile
         let profile = UserProfile(
             birthDate: userBirthDate,
             gender: userGender,
@@ -432,7 +415,6 @@ struct OnboardingView: View {
         )
         modelContext.insert(profile)
 
-        // Create their first person from onboarding
         if !parentName.isEmpty {
             let person = Person(
                 name: parentName,

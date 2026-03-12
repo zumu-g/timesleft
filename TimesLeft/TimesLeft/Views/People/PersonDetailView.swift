@@ -19,25 +19,56 @@ struct PersonDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
-                headerSection
-                mainStatsSection
+            VStack(spacing: 0) {
+                // Hero — the number
+                heroSection
+                    .padding(.top, 20)
+                    .padding(.bottom, 32)
+
+                Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+                // Stats
+                statsSection
+                    .padding(.vertical, 24)
+
+                Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+                // Progress
+                progressSection
+                    .padding(.vertical, 24)
+
+                Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+                // Insight
                 if let insight = TimeCalculator.tailEndInsight(for: person, yourAge: yourAge) {
                     insightSection(insight)
+                        .padding(.vertical, 24)
+                    Rectangle().fill(Color.tlDivider).frame(height: 0.5)
                 }
+
+                // Grid
                 gridSection
+                    .padding(.vertical, 24)
+
+                Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+                // Occasions
                 occasionsSection
+                    .padding(.vertical, 24)
+                    .padding(.bottom, 20)
             }
-            .padding()
+            .padding(.horizontal, 20)
         }
+        .background(Color.tlBackground.ignoresSafeArea())
         .navigationTitle(person.name)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingSharePortrait = true
                 } label: {
                     Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(Color.tlBone)
                 }
             }
         }
@@ -46,68 +77,118 @@ struct PersonDetailView: View {
         }
     }
 
-    private var headerSection: some View {
-        VStack(spacing: 8) {
-            Image(systemName: person.relationship.icon)
-                .font(.system(size: 48))
-                .foregroundStyle(.accent)
+    // MARK: - Hero
 
-            Text(person.relationship.rawValue)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private var heroSection: some View {
+        VStack(spacing: 12) {
+            Text(person.relationship.rawValue.uppercased())
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(2)
 
-            Text("\(person.age) years old")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            Text("\(stats.remainingVisits)")
+                .font(.tlFeatureNumber)
+                .foregroundStyle(Color.tlCopper)
+
+            Text("visits left")
+                .font(.tlSubheadline)
+                .foregroundStyle(Color.tlTextSecondary)
         }
         .frame(maxWidth: .infinity)
-        .cardStyle()
-        .accessibilityElement(children: .combine)
     }
 
-    private var mainStatsSection: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 16) {
-                StatsCardView(
-                    title: "Visits Left",
-                    value: "\(stats.remainingVisits)",
-                    icon: "calendar",
-                    color: .accentColor
-                )
-                StatsCardView(
-                    title: "Days Together",
-                    value: "\(stats.remainingDays)",
-                    icon: "sun.max.fill",
-                    color: .accentColor.opacity(0.7)
-                )
+    // MARK: - Stats
+
+    private var statsSection: some View {
+        HStack {
+            VStack(spacing: 4) {
+                Text("\(stats.remainingVisits)")
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlBone)
+                Text("VISITS LEFT")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
             }
+            .frame(maxWidth: .infinity)
 
-            VStack(spacing: 8) {
-                HStack {
-                    Text("Time Together")
-                        .font(.headline)
-                    Spacer()
-                    Text("\(Int(stats.percentageUsed))% spent")
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(.secondary)
-                }
+            Rectangle()
+                .fill(Color.tlDivider)
+                .frame(width: 0.5, height: 40)
 
-                ProgressRing(progress: stats.percentageUsed / 100, size: 120)
-                    .padding(.vertical, 8)
-
-                Text(stats.motivationalMessage)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+            VStack(spacing: 4) {
+                Text("\(stats.remainingDays)")
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlBone)
+                Text("DAYS LEFT")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
             }
-            .cardStyle()
+            .frame(maxWidth: .infinity)
         }
     }
 
+    // MARK: - Progress
+
+    private var progressSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("\(Int(stats.percentageUsed))% spent")
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.tlTextSecondary)
+
+                Spacer()
+
+                Text("\(Int(stats.percentageRemaining))% left")
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.tlBone)
+            }
+
+            // Minimal progress bar — no ring
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color.tlDivider)
+                        .frame(height: 2)
+
+                    Rectangle()
+                        .fill(Color.tlCopper)
+                        .frame(width: geo.size.width * (stats.percentageUsed / 100), height: 2)
+                }
+            }
+            .frame(height: 2)
+
+            Text(stats.motivationalMessage)
+                .font(.system(size: 15, weight: .regular))
+                .foregroundStyle(Color.tlTextTertiary)
+        }
+    }
+
+    // MARK: - Insight
+
+    private func insightSection(_ insight: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("THE TAIL END")
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(1.5)
+
+            Text(insight)
+                .font(.tlBody)
+                .foregroundStyle(Color.tlTextSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Grid
+
     private var gridSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Your Time Together")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("YOUR TIME")
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(1.5)
 
             GridVisualization(
                 total: stats.totalExpectedVisits,
@@ -117,65 +198,49 @@ struct PersonDetailView: View {
             .frame(height: 200)
 
             HStack {
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.gray.opacity(0.15))
-                        .frame(width: 12, height: 12)
+                HStack(spacing: 6) {
+                    Rectangle()
+                        .fill(Color.tlPast)
+                        .frame(width: 10, height: 10)
                     Text("Past")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.tlCaption)
+                        .foregroundStyle(Color.tlTextTertiary)
                 }
                 Spacer()
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.accentColor)
-                        .frame(width: 12, height: 12)
+                HStack(spacing: 6) {
+                    Rectangle()
+                        .fill(Color.tlBone)
+                        .frame(width: 10, height: 10)
                     Text("Future")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.tlCaption)
+                        .foregroundStyle(Color.tlTextTertiary)
                 }
             }
         }
-        .cardStyle()
     }
+
+    // MARK: - Occasions
 
     private var occasionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Special Occasions Left")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("OCCASIONS LEFT")
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(1.5)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                ForEach(Array(specialOccasions.keys.sorted()), id: \.self) { occasion in
-                    HStack {
-                        Text(occasion)
-                            .font(.subheadline)
-                        Spacer()
-                        Text("~\(specialOccasions[occasion] ?? 0)")
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            ForEach(Array(specialOccasions.keys.sorted()), id: \.self) { occasion in
+                HStack {
+                    Text(occasion)
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(Color.tlTextSecondary)
+                    Spacer()
+                    Text("~\(specialOccasions[occasion] ?? 0)")
+                        .font(.system(size: 22, weight: .light, design: .serif))
+                        .foregroundStyle(Color.tlBone)
                 }
+                .padding(.vertical, 4)
             }
         }
-        .cardStyle()
-    }
-
-    private func insightSection(_ insight: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("The Tail End", systemImage: "lightbulb.fill")
-                .font(.headline)
-                .foregroundStyle(.accent)
-
-            Text(insight)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.accentColor.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 

@@ -16,6 +16,7 @@ struct DashboardView: View {
         peopleWithStats.reduce(0) { $0 + $1.1.remainingVisits }
     }
 
+    /// The person with the least time remaining (highest % spent)
     private var mostUrgent: (Person, TimeStats)? {
         peopleWithStats.max { $0.1.percentageRemaining > $1.1.percentageRemaining }
     }
@@ -29,45 +30,155 @@ struct DashboardView: View {
                     dashboardContent
                 }
             }
-            .navigationTitle("TimesLeft")
+            .background(Color.tlBackground.ignoresSafeArea())
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingAddPerson = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.tlBone)
+                    }
+                }
+            }
             .sheet(isPresented: $showingAddPerson) {
                 AddPersonView()
             }
         }
     }
 
+    // MARK: - Empty State
+
     private var emptyStateView: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 120)
 
-            VStack(spacing: 16) {
-                Image(systemName: "hourglass")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.accent)
+            Text("TimesLeft")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(3)
+                .textCase(.uppercase)
+                .padding(.bottom, 48)
 
-                Text("Make Time Count")
-                    .font(.system(.title, design: .rounded, weight: .bold))
+            Text("Who matters\nmost to you?")
+                .font(.tlDisplayText)
+                .foregroundStyle(Color.tlBone)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 16)
 
-                Text("Inspired by Tim Urban's \"The Tail End\", this app helps you visualize and appreciate the limited time you have with the people you love.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
+            Text("See how many visits you have left\nwith the people you love.")
+                .font(.tlSubheadline)
+                .foregroundStyle(Color.tlTextSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 48)
 
-            Button("Add Your First Person") {
+            Button {
                 showingAddPerson = true
+            } label: {
+                Text("Add someone")
+                    .font(.system(size: 17, weight: .medium))
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 16)
+                    .background(Color.tlCopper)
+                    .foregroundStyle(Color.tlBone)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
 
             Spacer()
         }
         .padding()
     }
 
+    // MARK: - Dashboard Content
+
+    private var dashboardContent: some View {
+        VStack(spacing: 0) {
+            // Hero section — one number, full attention
+            heroSection
+                .padding(.top, 20)
+                .padding(.bottom, 32)
+
+            Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+            // Stats row
+            statsRow
+                .padding(.vertical, 24)
+
+            Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+
+            // Insight (if available)
+            if let (person, delta) = moveCloserInsight {
+                insightRow(person: person, delta: delta)
+                    .padding(.vertical, 24)
+                Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+            }
+
+            // People list
+            peopleSection
+                .padding(.top, 24)
+                .padding(.bottom, 40)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - Hero
+
+    private var heroSection: some View {
+        VStack(spacing: 12) {
+            if let (urgent, stats) = mostUrgent {
+                Text(urgent.name.uppercased())
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(2)
+
+                Text("\(stats.remainingVisits)")
+                    .font(.tlFeatureNumber)
+                    .foregroundStyle(Color.tlCopper)
+
+                Text("visits left")
+                    .font(.tlSubheadline)
+                    .foregroundStyle(Color.tlTextSecondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Stats
+
+    private var statsRow: some View {
+        HStack {
+            VStack(spacing: 4) {
+                Text("\(people.count)")
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlBone)
+                Text("PEOPLE")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
+            }
+            .frame(maxWidth: .infinity)
+
+            Rectangle()
+                .fill(Color.tlDivider)
+                .frame(width: 0.5, height: 40)
+
+            VStack(spacing: 4) {
+                Text("\(totalRemainingVisits)")
+                    .font(.tlStatLarge)
+                    .foregroundStyle(Color.tlBone)
+                Text("TOTAL VISITS")
+                    .font(.tlLabel)
+                    .foregroundStyle(Color.tlTextTertiary)
+                    .tracking(1.5)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    // MARK: - Insight
+
     private var moveCloserInsight: (Person, Int)? {
-        // Find the person who isn't nearby where moving closer would have the biggest impact
         var bestPerson: Person?
         var bestDelta = 0
 
@@ -88,136 +199,70 @@ struct DashboardView: View {
         return nil
     }
 
-    private var dashboardContent: some View {
-        VStack(spacing: 20) {
-            summarySection
-            urgentSection
-            moveCloserSection
-            peopleOverviewSection
+    private func insightRow(person: Person, delta: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("WHAT IF")
+                .font(.tlLabel)
+                .foregroundStyle(Color.tlTextTertiary)
+                .tracking(1.5)
+
+            Text("Moving closer to \(person.name) could mean **\(delta) more visits**.")
+                .font(.tlBody)
+                .foregroundStyle(Color.tlTextSecondary)
         }
-        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var summarySection: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 16) {
-                StatsCardView(
-                    title: "People",
-                    value: "\(people.count)",
-                    icon: "person.3.fill",
-                    color: .accentColor
-                )
-                StatsCardView(
-                    title: "Total Visits",
-                    value: "\(totalRemainingVisits)",
-                    icon: "calendar.badge.clock",
-                    color: .accentColor.opacity(0.7)
-                )
-            }
-        }
-    }
+    // MARK: - People List
 
-    @ViewBuilder
-    private var urgentSection: some View {
-        if let (urgent, stats) = mostUrgent {
-            VStack(alignment: .leading, spacing: 12) {
-                Label("Prioritize", systemImage: "exclamationmark.triangle.fill")
-                    .font(.headline)
-                    .foregroundStyle(.accent)
+    private var peopleSection: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(peopleWithStats.enumerated()), id: \.1.0.id) { index, pair in
+                let (person, stats) = pair
 
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(urgent.name)
-                            .font(.system(.title3, design: .rounded, weight: .semibold))
-
-                        Text("\(Int(stats.percentageUsed))% of time spent")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    NavigationLink(destination: PersonDetailView(person: urgent)) {
-                        Text("View")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                    }
-                    .buttonStyle(.bordered)
-                }
-
-                ProgressView(value: stats.percentageUsed / 100)
-                    .tint(.accent)
-            }
-            .padding()
-            .background(Color.accentColor.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
-    @ViewBuilder
-    private var moveCloserSection: some View {
-        if let (person, delta) = moveCloserInsight {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("What if?", systemImage: "mappin.and.ellipse")
-                    .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(.accent)
-
-                Text("Moving closer to \(person.name) would give you **\(delta) more visits**.")
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.primary)
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.accentColor.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
-    private var peopleOverviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Your People")
-                    .font(.headline)
-                Spacer()
-                Button(action: { showingAddPerson = true }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                }
-            }
-
-            ForEach(peopleWithStats, id: \.0.id) { person, stats in
                 NavigationLink(destination: PersonDetailView(person: person)) {
-                    personCard(person, stats: stats)
+                    personRow(person, stats: stats)
                 }
                 .buttonStyle(.plain)
+
+                if index < peopleWithStats.count - 1 {
+                    Rectangle().fill(Color.tlDivider).frame(height: 0.5)
+                        .padding(.leading, 56)
+                }
             }
         }
     }
 
-    private func personCard(_ person: Person, stats: TimeStats) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: person.relationship.icon)
-                .font(.title2)
-                .foregroundStyle(.accent)
-                .frame(width: 44, height: 44)
-                .background(Color.accentColor.opacity(0.1))
-                .clipShape(Circle())
+    private func personRow(_ person: Person, stats: TimeStats) -> some View {
+        HStack(spacing: 16) {
+            // Minimal icon
+            Text(person.relationship.icon == "figure.and.child.holdinghands" ? "P" :
+                    String(person.relationship.rawValue.prefix(1)))
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color.tlTextSecondary)
+                .frame(width: 36, height: 36)
+                .overlay(
+                    Circle()
+                        .stroke(Color.tlDivider, lineWidth: 0.5)
+                )
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(person.name)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(Color.tlBone)
 
                 Text("\(stats.remainingVisits) visits left")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(Color.tlTextSecondary)
             }
 
             Spacer()
 
-            ProgressRing(progress: stats.percentageUsed / 100, size: 44, lineWidth: 4)
+            Text("\(Int(stats.percentageUsed))%")
+                .font(.system(size: 22, weight: .light, design: .serif))
+                .foregroundStyle(Color.tlTextTertiary)
         }
-        .cardStyle(cornerRadius: 12)
+        .padding(.vertical, 14)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(person.name), \(person.relationship.rawValue), \(stats.remainingVisits) visits left, \(Int(stats.percentageUsed))% spent")
     }

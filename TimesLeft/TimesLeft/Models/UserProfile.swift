@@ -7,6 +7,7 @@ final class UserProfile {
     var birthDate: Date
     var genderRaw: String
     var hasCompletedOnboarding: Bool
+    var dailyRemindersEnabled: Bool
 
     var gender: Gender {
         get { Gender(rawValue: genderRaw) ?? .male }
@@ -20,11 +21,13 @@ final class UserProfile {
     init(
         birthDate: Date,
         gender: Gender = .male,
-        hasCompletedOnboarding: Bool = false
+        hasCompletedOnboarding: Bool = false,
+        dailyRemindersEnabled: Bool = false
     ) {
         self.id = UUID()
         self.birthDate = birthDate
         self.genderRaw = gender.rawValue
         self.hasCompletedOnboarding = hasCompletedOnboarding
+        self.dailyRemindersEnabled = dailyRemindersEnabled
     }
 }

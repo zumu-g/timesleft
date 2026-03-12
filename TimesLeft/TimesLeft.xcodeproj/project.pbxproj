@@ -26,6 +26,14 @@
 		A18 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B18; };
 		A19 /* TimePortraitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19; };
 		A20 /* LifeCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20; };
+		A21 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21; };
+		A22 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22; };
+		A23 /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23; };
+		A24 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24; };
+		A25 /* HandDrawnShapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B25; };
+		A26 /* HandDrawnProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26; };
+		A27 /* Caveat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B27; };
+		A28 /* Caveat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B28; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +57,14 @@
 		B18 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B19 /* TimePortraitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePortraitView.swift; sourceTree = "<group>"; };
 		B20 /* LifeCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCalendarView.swift; sourceTree = "<group>"; };
+		B21 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		B22 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		B23 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
+		B24 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		B25 /* HandDrawnShapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandDrawnShapes.swift; sourceTree = "<group>"; };
+		B26 /* HandDrawnProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandDrawnProgressRing.swift; sourceTree = "<group>"; };
+		B27 /* Caveat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Caveat-Regular.ttf"; sourceTree = "<group>"; };
+		B28 /* Caveat-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Caveat-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,10 +92,39 @@
 				E04 /* App */,
 				E05 /* Models */,
 				E06 /* Views */,
+				E14 /* Theme */,
+				E15 /* Resources */,
 				E07 /* Services */,
 				B03 /* Assets.xcassets */,
 			);
 			path = TimesLeft;
+			sourceTree = "<group>";
+		};
+		E14 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				B22 /* AppColors.swift */,
+				B23 /* AppTypography.swift */,
+				B24 /* AppTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		E15 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E16 /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E16 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				B27 /* Caveat-Regular.ttf */,
+				B28 /* Caveat-Bold.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		E03 /* Products */ = {
@@ -106,6 +151,7 @@
 				B05 /* TimeCalculator.swift */,
 				B14 /* LifeExpectancy.swift */,
 				B16 /* UserProfile.swift */,
+				B21 /* NotificationManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -180,6 +226,8 @@
 				B11 /* ProgressRing.swift */,
 				B15 /* CardStyle.swift */,
 				B19 /* TimePortraitView.swift */,
+				B25 /* HandDrawnShapes.swift */,
+				B26 /* HandDrawnProgressRing.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -243,6 +291,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A03 /* Assets.xcassets in Resources */,
+				A27 /* Caveat-Regular.ttf in Resources */,
+				A28 /* Caveat-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +321,12 @@
 				A18 /* SettingsView.swift in Sources */,
 				A19 /* TimePortraitView.swift in Sources */,
 				A20 /* LifeCalendarView.swift in Sources */,
+				A21 /* NotificationManager.swift in Sources */,
+				A22 /* AppColors.swift in Sources */,
+				A23 /* AppTypography.swift in Sources */,
+				A24 /* AppTheme.swift in Sources */,
+				A25 /* HandDrawnShapes.swift in Sources */,
+				A26 /* HandDrawnProgressRing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,6 +462,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimesLeft/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -434,6 +491,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimesLeft/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
